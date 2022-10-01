@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <title>chatting</title>
+  </head>
+
+  <style>
+    #chat {
+      text-align: left;
+      background: #f1f1f1;
+      width: 500px;
+      min-height: 300px;
+      padding: 20px;
+    }
+  </style>
+
+  <body>
+    <center>
+      <h3>Chat</h3>
+      <pre id="chat"></pre>
+      <input placeholder="username" id="username" type="text">
+      <input placeholder="say something" id="text" type="text">
+    </center>
+
+    <script>
+      var url = "ws://" + window.location.host + "/ws";
+      var ws = new WebSocket(url);
+      var name = "anonymous";
+
+      var username = document.getElementById("username");
+      var chat = document.getElementById("chat");
+      var text = document.getElementById("text");
+
+      ws.onopen = function () {
+        var line = "Status: Connected\n";
+        chat.innerText += line;
+      };
+
+      ws.onclose = function () {
+        var line = "Status: Disconnected\n";
+        chat.innerText += line
+      }
+
+      ws.onmessage = function (msg) {
+        var line = msg.data + "\n";
+        chat.innerText += line;
+      };
+
+      username.onkeydown = function (event) {
+        if (event.key === "Enter" && name.value !== "") {
+          name = username.value;
+          username.disabled = true;
+          text.disabled = false;
+          text.focus();
+        }
+      }
+
+      text.onkeydown = function (event) {
+        if (event.key === "Enter" && text.value !== "") {
+          ws.send("<" + name + "> " + text.value);
+          text.value = "";
+        }
+      };
+    </script>
+  </body>
+</html>
